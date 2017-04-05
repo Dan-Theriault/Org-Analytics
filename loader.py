@@ -1,52 +1,78 @@
+#!/bin/env python3
+
 """Moves data from xlsx files to sqlite."""
 
-import xlrd
-import sqlite3
 from os import listdir
 from os.path import isfile, join
+import sqlite3
+import xlrd
 from dateutil.parser import parse as dateparse
 
-data_dir = 'Data'
-db = 'GTCSO.db'
+DATA_DIR = 'Data'
+DB = 'GTCSO.db'
 
 
-def parse_xlsx(f, event_name):
-    """parse an xlsx file and insert data into SQLite instance."""
-    conn = sqlite3.connect(db)
-    c = conn.cursor
+def main():
+    """Parse all reports found in DATA_DIR."""
+    data_files = [f for f in listdir(DATA_DIR) if isfile(join(DATA_DIR, f))]
 
-    sheet = (xlrd.open_workbook(f)).sheet_by_name('Participation')
+    for entry in data_files:
+        parse_xlsx(join(DATA_DIR, entry), entry[:-19])
+
+
+def parse_xlsx(file_, event_name):
+    """Parse an xlsx file and insert data into SQLite instance."""
+    conn = sqlite3.connect(DB)
+    cur = conn.cursor()
+
+    sheet = (xlrd.open_workbook(file_)).sheet_by_name('Participation')
 
     # 2D list of cells, excluding label row
     rows = [sheet.row_slice(i+1) for i in range(sheet.nrows-1)]
-    # TODO: add name and date of event to db
+
+    # check if event is already in db
+    # if so, return
+    # if not, add name and date of event to db and continue
     time = rows[0][0].value
-    c.execute('INSERT INTO events
+    event_info = [event_name, time]
+    cur.execute('SELECT * FROM events WHERE name=? AND time=?',
+                event_info)
+    if cur.fetchall() == []:
+        cur.execute('INSERT INTO events VALUES (?,?)', event_info)
+    else:
+        return
 
-    # Step 1: pull data from excel sheet
     for row in rows:
-        # firstname lastname
-        name = '{} {}'.format(row[3].value, row[2].value)
+        # First get student's information
+        name = '{} {}'.format(row[3].value, row[2].value)  # first last
+        email = row[4].value  # this is a unique ID
+        group_names = (row[11].value).split(', ')
+        groups = [1 if ('General Members' in group_names) else 0,
+                  1 if ('CSO Pillar Volunteers' in group_names) else 0,
+                  1 if ('CSO Board' in group_names) else 0]
 
-        # unique identifier
-        email = row[4].value
+        # Create or update record of this student
+        cur.execute('SELECT * FROM students WHERE email=?', [email])
+        if cur.fetchall() == []:
+            cur.execute('INSERT INTO students VALUES (?,?,?,?,?)',
+                        ([email, name] + groups))
+        else:
+            cur.execute('UPDATE students SET is_member=?, is_volunteer=?,'
+                        + 'is_board=? WHERE email=?', groups + [email])
 
-        checkin = dateparse(row[9].value)
-        # time format HH:MM, ie 18:01
-        checkin = '{}:{}'.format(checkin.hour, checkin.minute)
+        # Move on to recording this attendance instance
+        try:
+            checkin = dateparse(row[9].value)
+            # time format HH:MM, ie 18:01
+            checkin_time = '{}:{}'.format(checkin.hour, checkin.minute)
+        except ValueError:
+            checkin = 'Manual'
+        cur.execute('INSERT INTO records VALUES (?,?,?,?)',
+                    event_info + [email, checkin_time])
 
-        # ... Well this will make the schema fun
-        groups = (row[11].value).split(', ')
+    conn.commit()
+    conn.close()
+    return
 
-    # TODO: Step 2: insert data to SQLite Database
-
-
-data_files = [f for f in listdir(data_dir) if isfile(join(data_dir, f))]
-
-# TODO: exclude already-parsed items in data_files
-
-for entry in data_files:
-    parse_xlsx(join(data_dir, entry), entry[:-19])
-
-c.commit()
-conn.close()
+if __name__ == "__main__":
+    main()
