@@ -6,7 +6,6 @@ from os import listdir
 from os.path import isfile, join
 import sqlite3
 import xlrd
-from dateutil.parser import parse as dateparse
 
 DATA_DIR = 'Data'
 DB = 'GTCSO.db'
@@ -61,12 +60,7 @@ def parse_xlsx(file_, event_name):
                         + 'is_board=? WHERE email=?', groups + [email])
 
         # Move on to recording this attendance instance
-        try:
-            checkin = dateparse(row[9].value)
-            # time format HH:MM, ie 18:01
-            checkin_time = '{}:{}'.format(checkin.hour, checkin.minute)
-        except ValueError:
-            checkin_time = 'Manual'
+        checkin_time = row[9].value
         cur.execute('INSERT INTO records VALUES (?,?,?,?)',
                     event_info + [email, checkin_time])
 
