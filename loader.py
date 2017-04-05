@@ -17,7 +17,7 @@ def main():
     data_files = [f for f in listdir(DATA_DIR) if isfile(join(DATA_DIR, f))]
 
     for entry in data_files:
-        parse_xlsx(join(DATA_DIR, entry), entry[:-19])
+        parse_xlsx(join(DATA_DIR, entry), (entry.rsplit(' Participation'))[0])
 
 
 def parse_xlsx(file_, event_name):
@@ -66,7 +66,7 @@ def parse_xlsx(file_, event_name):
             # time format HH:MM, ie 18:01
             checkin_time = '{}:{}'.format(checkin.hour, checkin.minute)
         except ValueError:
-            checkin = 'Manual'
+            checkin_time = 'Manual'
         cur.execute('INSERT INTO records VALUES (?,?,?,?)',
                     event_info + [email, checkin_time])
 
