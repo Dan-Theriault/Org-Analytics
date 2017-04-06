@@ -61,6 +61,7 @@ def parse_xlsx(file_, event_name):
 
         # Move on to recording this attendance instance
         checkin_time = row[9].value
+        checkin_time = 'Manual' if (checkin_time == '') else checkin_time
         cur.execute('INSERT INTO records VALUES (?,?,?,?)',
                     event_info + [email, checkin_time])
 
