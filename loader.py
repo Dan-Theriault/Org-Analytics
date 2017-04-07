@@ -27,7 +27,7 @@ def parse_xlsx(file_, event_name):
     sheet = (xlrd.open_workbook(file_)).sheet_by_name('Participation')
 
     # 2D list of cells, excluding label row
-    rows = [sheet.row_slice(i+1) for i in range(sheet.nrows-1)]
+    rows = [sheet.row_slice(i + 1) for i in range(sheet.nrows - 1)]
 
     # check if event is already in db
     # if so, return
@@ -56,8 +56,8 @@ def parse_xlsx(file_, event_name):
             cur.execute('INSERT INTO students VALUES (?,?,?,?,?)',
                         ([email, name] + groups))
         else:
-            cur.execute('UPDATE students SET is_member=?, is_volunteer=?,'
-                        + 'is_board=? WHERE email=?', groups + [email])
+            cur.execute('UPDATE students SET is_member=?, is_volunteer=?, ' +
+                        'is_board=? WHERE email=?', groups + [email])
 
         # Move on to recording this attendance instance
         checkin_time = row[9].value
