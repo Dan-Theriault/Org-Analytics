@@ -1,30 +1,100 @@
-import datetime
-from monthdelta import monthdelta
+"""Basic units of analysis; methods to query database and return usable data sets."""
+from datetime import datetime
+# from monthdelta import monthdelta
 import sqlite3
+import loader
 
 
-def get_arrival_times(events_list):
-    """Return a list of arrival times (as deltas vs start time)."""
+def get_arrival_times(events_query, query_vars):
+    """Return a list of arrival times (as deltas vs start time).
+
+    event_query should return a full tuple from events of format (name, time)
+    """
+    conn = sqlite3.connect(loader.DB)
+    cur = conn.cursor()
+    cur.execute(events_query, query_vars)
+    events_list = cur.fetchall()
+
     arrival_times = []
     for event in events_list:
-        pass
+        cur.execute('SELECT checkin_time FROM records WHERE event_name=? AND event_time=?',
+                    list(event))
+        checkins = [t[0] for t in cur.fetchall() if t[0] != 'Manual']
+
+        for checkin in checkins:
+            arrival_datetime = datetime.strptime(checkin, '%Y-%m-%d  %I:%M %p')
+            event_datetime = datetime.strptime(event[1], '%Y-%m-%d  %I:%M %p')
+            arrival_delta = arrival_datetime - event_datetime
+            arrival_times.append(arrival_delta.total_seconds() / 60)
+
     return arrival_times
 
 
-def get_attendee_counts(events_list):
+def get_attendee_counts(events_query, query_vars=[], distinct_only=False):
     """Return a list of dictionaries of arrival times."""
-    attendee_counts = [{'All': 0,
-                        'Nonmembers': 0,
-                        'Members': 0,
-                        'Volunteers': 0,
-                        'Board': 0}]
+    conn = sqlite3.connect(loader.DB)
+    cur = conn.cursor()
+    cur.execute(events_query, query_vars)
+    events_list = cur.fetchall()
+
+    distinct = 'DISTINCT ' if distinct_only else ''
+    print(distinct)
+
+    attendee_counts = {'All': 0,
+                       'Nonmembers': 0,
+                       'Members': 0,
+                       'Volunteers': 0,
+                       'Board': 0}
+    email_lists = {'All': [],
+                   'Nonmembers': [],
+                   'Members': [],
+                   'Volunteers': [],
+                   'Board': []}
+    attendees = []
+
     for event in events_list:
-        pass
-    if len(attendee_counts) == 2:
-        attendee_counts = [attendee_counts[0]]
-    return attendee_counts
+        cur.execute('SELECT student_email FROM records ' +
+                    'WHERE event_name=? AND event_time=?',
+                    list(event))
+        attendees += cur.fetchall()
+
+    if distinct_only:
+        attendees = list(set(attendees))
+
+    for attendee in attendees:
+        cur.execute('SELECT is_member,is_volunteer,is_board FROM students WHERE email=?',
+                    attendee)
+        attendee_group = cur.fetchone()
+
+        attendee_counts['All'] += 1
+        email_lists['All'].append(attendee[0])
+
+        if attendee_group[2]:
+            attendee_counts['Board'] += 1
+            email_lists['Board'].append(attendee[0])
+        elif attendee_group[1]:
+            attendee_counts['Volunteers'] += 1
+            email_lists['Volunteers'].append(attendee[0])
+        elif attendee_group[0]:
+            attendee_counts['Members'] += 1
+            email_lists['Members'].append(attendee[0])
+        else:
+            attendee_counts['Nonmembers'] += 1
+            email_lists['Nonmembers'].append(attendee[0])
+
+    attendees = list(set(attendees))
+
+    return (attendee_counts, email_lists)
 
 
-def get_attendee_stats(events_list, drop_cutoff):
+def get_attendee_stats(events_query, query_vars=[]):
     """Compute and return statistics about event attendance."""
-    pass
+    conn = sqlite3.connect(loader.DB)
+    cur = conn.cursor()
+    cur.execute(events_query, query_vars)
+    events_list = cur.fetchall()
+
+    for event in events_list:
+        cur.execute('SELECT student_email FROM records ' +
+                    'WHERE event_name=? AND event_time=?',
+                    list(event))
