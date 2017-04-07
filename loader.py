@@ -4,19 +4,19 @@
 
 from os import listdir
 from os.path import isfile, join
+from sys import argv
 import sqlite3
 import xlrd
 
-DATA_DIR = 'Data'
 DB = 'GTCSO.db'
 
 
-def main():
+def main(data_dir):
     """Parse all reports found in DATA_DIR."""
-    data_files = [f for f in listdir(DATA_DIR) if isfile(join(DATA_DIR, f))]
+    data_files = [f for f in listdir(data_dir) if isfile(join(data_dir, f))]
 
     for entry in data_files:
-        parse_xlsx(join(DATA_DIR, entry), (entry.rsplit(' Participation'))[0])
+        parse_xlsx(join(data_dir, entry), (entry.rsplit(' Participation'))[0])
 
 
 def parse_xlsx(file_, event_name):
@@ -70,4 +70,7 @@ def parse_xlsx(file_, event_name):
     return
 
 if __name__ == "__main__":
-    main()
+    if len(argv) == 2:
+        main(argv[1])
+    else:
+        main('Data')

@@ -1,7 +1,9 @@
 """Basic script to start a fresh database."""
 import sqlite3
+import loader
+from sys import argv
 
-conn = sqlite3.connect('GTCSO.db')
+conn = sqlite3.connect(loader.DB)
 c = conn.cursor()
 
 c.execute('PRAGMA foreign_keys = ON;')
@@ -12,3 +14,6 @@ c.execute('''CREATE TABLE records(event_name TEXT, event_time TEXT, student_emai
 
 conn.commit()
 conn.close()
+
+if len(argv) == 2:
+    loader.main(argv[1])
