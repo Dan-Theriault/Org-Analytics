@@ -5,7 +5,7 @@ import sqlite3
 import loader
 
 
-def get_arrival_times(events_query, query_vars):
+def arrival_times(events_query, query_vars):
     """Return a list of arrival times (as deltas vs start time).
 
     event_query should return a full tuple from events of format (name, time)
@@ -31,7 +31,7 @@ def get_arrival_times(events_query, query_vars):
     return arrival_times
 
 
-def get_attendee_counts(events_query, query_vars=[], distinct_only=False):
+def attendee_counts(events_query, query_vars=[], distinct_only=False):
     """Return a list of dictionaries of arrival times."""
     conn = sqlite3.connect(loader.DB)
     cur = conn.cursor()
@@ -75,7 +75,7 @@ def get_attendee_counts(events_query, query_vars=[], distinct_only=False):
     return attendee_counts
 
 
-def get_email_list(events_query, query_vars=[]):
+def email_lists(events_query, query_vars=[]):
     """Return a list of dictionaries of arrival times."""
     conn = sqlite3.connect(loader.DB)
     cur = conn.cursor()
@@ -117,7 +117,7 @@ def get_email_list(events_query, query_vars=[]):
     return email_lists
 
 
-def get_attendee_stats(events_query, query_vars=[]):
+def attendee_stats(events_query, query_vars=[]):
     """Compute and return statistics about event attendance."""
     conn = sqlite3.connect(loader.DB)
     cur = conn.cursor()
@@ -131,3 +131,14 @@ def get_attendee_stats(events_query, query_vars=[]):
 
     conn.close()
     return
+
+
+def event_occurrences(event_name):
+    """Return all times a given event has occurred."""
+    conn = sqlite3.connect(loader.DB)
+    cur = conn.cursor()
+    cur.execute('SELECT time FROM events WHERE name=?', [event_name])
+    occurrences = cur.fetchall()
+
+    conn.close()
+    return occurrences
