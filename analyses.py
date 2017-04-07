@@ -27,6 +27,7 @@ def get_arrival_times(events_query, query_vars):
             arrival_delta = arrival_datetime - event_datetime
             arrival_times.append(arrival_delta.total_seconds() / 60)
 
+    conn.close()
     return arrival_times
 
 
@@ -70,6 +71,7 @@ def get_attendee_counts(events_query, query_vars=[], distinct_only=False):
         else:
             attendee_counts['Nonmembers'] += 1
 
+    conn.close()
     return attendee_counts
 
 
@@ -111,6 +113,7 @@ def get_email_list(events_query, query_vars=[]):
         else:
             email_lists['Nonmembers'].append(attendee[0])
 
+    conn.close()
     return email_lists
 
 
@@ -125,3 +128,6 @@ def get_attendee_stats(events_query, query_vars=[]):
         cur.execute('SELECT student_email FROM records ' +
                     'WHERE event_name=? AND event_time=?',
                     list(event))
+
+    conn.close()
+    return
