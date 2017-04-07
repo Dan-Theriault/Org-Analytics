@@ -37,19 +37,12 @@ def get_attendee_counts(events_query, query_vars=[], distinct_only=False):
     cur.execute(events_query, query_vars)
     events_list = cur.fetchall()
 
-    distinct = 'DISTINCT ' if distinct_only else ''
-    print(distinct)
-
     attendee_counts = {'All': 0,
                        'Nonmembers': 0,
                        'Members': 0,
                        'Volunteers': 0,
                        'Board': 0}
-    email_lists = {'All': [],
-                   'Nonmembers': [],
-                   'Members': [],
-                   'Volunteers': [],
-                   'Board': []}
+
     attendees = []
 
     for event in events_list:
@@ -67,24 +60,58 @@ def get_attendee_counts(events_query, query_vars=[], distinct_only=False):
         attendee_group = cur.fetchone()
 
         attendee_counts['All'] += 1
-        email_lists['All'].append(attendee[0])
 
         if attendee_group[2]:
             attendee_counts['Board'] += 1
-            email_lists['Board'].append(attendee[0])
         elif attendee_group[1]:
             attendee_counts['Volunteers'] += 1
-            email_lists['Volunteers'].append(attendee[0])
         elif attendee_group[0]:
             attendee_counts['Members'] += 1
-            email_lists['Members'].append(attendee[0])
         else:
             attendee_counts['Nonmembers'] += 1
+
+    return attendee_counts
+
+
+def get_email_list(events_query, query_vars=[]):
+    """Return a list of dictionaries of arrival times."""
+    conn = sqlite3.connect(loader.DB)
+    cur = conn.cursor()
+    cur.execute(events_query, query_vars)
+    events_list = cur.fetchall()
+
+    email_lists = {'All': [],
+                   'Nonmembers': [],
+                   'Members': [],
+                   'Volunteers': [],
+                   'Board': []}
+    attendees = []
+
+    for event in events_list:
+        cur.execute('SELECT student_email FROM records ' +
+                    'WHERE event_name=? AND event_time=?',
+                    list(event))
+        attendees += cur.fetchall()
+
+    attendees = list(set(attendees))  # ensure all elements of attendees are distinct
+
+    for attendee in attendees:
+        cur.execute('SELECT is_member,is_volunteer,is_board FROM students WHERE email=?',
+                    attendee)
+        attendee_group = cur.fetchone()
+
+        email_lists['All'].append(attendee[0])
+
+        if attendee_group[2]:
+            email_lists['Board'].append(attendee[0])
+        elif attendee_group[1]:
+            email_lists['Volunteers'].append(attendee[0])
+        elif attendee_group[0]:
+            email_lists['Members'].append(attendee[0])
+        else:
             email_lists['Nonmembers'].append(attendee[0])
 
-    attendees = list(set(attendees))
-
-    return (attendee_counts, email_lists)
+    return email_lists
 
 
 def get_attendee_stats(events_query, query_vars=[]):
