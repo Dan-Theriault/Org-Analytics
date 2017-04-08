@@ -4,6 +4,7 @@
 
 from os import listdir
 from os.path import isfile, join
+from datetime import datetime
 from sys import argv
 import sqlite3
 import xlrd
@@ -61,6 +62,8 @@ def parse_xlsx(file_, event_name):
 
         # Move on to recording this attendance instance
         checkin_time = row[9].value
+        checkin = datetime.strptime(checkin_time, '%Y-%m-%d %H:%M')
+        checkin_time = checkin.isoformat()
         checkin_time = 'Manual' if (checkin_time == '') else checkin_time
         cur.execute('INSERT INTO records VALUES (?,?,?,?)',
                     event_info + [email, checkin_time])

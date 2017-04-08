@@ -22,8 +22,8 @@ def get_arrival_deltas(events_query, query_vars):
         checkins = [t[0] for t in cur.fetchall() if t[0] != 'Manual']
 
         for checkin in checkins:
-            arrival_datetime = datetime.strptime(checkin, '%Y-%m-%d  %I:%M %p')
-            event_datetime = datetime.strptime(event[1], '%Y-%m-%d  %I:%M %p')
+            arrival_datetime = datetime.strptime(checkin, '%Y-%m-%d  %H:%M')
+            event_datetime = datetime.strptime(event[1], '%Y-%m-%d  %H:%M')
             arrival_delta = arrival_datetime - event_datetime
             arrival_times.append(arrival_delta.total_seconds() / 60)
 
@@ -32,7 +32,7 @@ def get_arrival_deltas(events_query, query_vars):
 
 
 def count_attendees(events_query, query_vars=[],
-                    distinct_only=False,  # return the number of distinct attendees to included events
+                    distinct_only=False,  # return the number of distinct attendees
                     average_attendance=False,  # return avg number of attendees
                     average_events=False):  # return avg number of events attended
     """Return a list of dictionaries of arrival times."""
