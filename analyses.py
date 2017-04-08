@@ -5,15 +5,13 @@ import sqlite3
 import loader
 
 
-def get_arrival_deltas(events_query, query_vars):
+def get_arrival_deltas(events_list):
     """Return a list of arrival times (as deltas vs start time).
 
     event_query should return a full tuple from events of format (name, time)
     """
     conn = sqlite3.connect(loader.DB)
     cur = conn.cursor()
-    cur.execute(events_query, query_vars)
-    events_list = cur.fetchall()
 
     arrival_times = []
     for event in events_list:
@@ -31,22 +29,20 @@ def get_arrival_deltas(events_query, query_vars):
     return arrival_times
 
 
-def count_attendees(events_query, query_vars=[],
+def count_attendees(events_list,
                     distinct_only=False,  # return the number of distinct attendees
                     average_attendance=False,  # return avg number of attendees
                     average_events=False):  # return avg number of events attended
     """Return a list of dictionaries of arrival times."""
     conn = sqlite3.connect(loader.DB)
     cur = conn.cursor()
-    cur.execute(events_query, query_vars)
-    events_list = cur.fetchall()
 
     if ((distinct_only and (average_attendance or average_events)) or
             (average_attendance and average_events)):
         raise ValueError('Incompatible options selected')
 
     if average_events:
-        attendee_distinct = count_attendees(events_query, query_vars, distinct_only=True)
+        attendee_distinct = count_attendees(events_list, distinct_only=True)
 
     attendee_counts = {'All': 0,
                        'Nonmembers': 0,
@@ -93,12 +89,10 @@ def count_attendees(events_query, query_vars=[],
     return attendee_counts
 
 
-def list_emails(events_query, query_vars=[]):
+def list_emails(events_list):
     """Return a list of dictionaries of arrival times."""
     conn = sqlite3.connect(loader.DB)
     cur = conn.cursor()
-    cur.execute(events_query, query_vars)
-    events_list = cur.fetchall()
 
     email_lists = {'All': [],
                    'Nonmembers': [],
@@ -135,16 +129,10 @@ def list_emails(events_query, query_vars=[]):
     return email_lists
 
 
-def compare_attendees(events_query_a, events_query_b, query_vars_a=[], query_vars_b=[]):
+def compare_attendees(events_list_a, events_list_b):
     """Compute and return statistics about event attendance."""
     conn = sqlite3.connect(loader.DB)
     cur = conn.cursor()
-
-    cur.execute(events_query_a, query_vars_a)
-    events_list_a = cur.fetchall()
-
-    cur.execute(events_query_b, query_vars_b)
-    events_list_b = cur.fetchall()
 
     attendees_a = []
     for event in events_list_a:
@@ -167,14 +155,3 @@ def compare_attendees(events_query_a, events_query_b, query_vars_a=[], query_var
 
     conn.close()
     return (a_not_b, b_not_a)
-
-
-def list_event_occurrences(event_name):
-    """Return all times a given event has occurred."""
-    conn = sqlite3.connect(loader.DB)
-    cur = conn.cursor()
-    cur.execute('SELECT time FROM events WHERE name=?', [event_name])
-    occurrences = cur.fetchall()
-
-    conn.close()
-    return occurrences
