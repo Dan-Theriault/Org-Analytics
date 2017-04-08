@@ -34,6 +34,7 @@ def parse_xlsx(file_, event_name):
     # if so, return
     # if not, add name and date of event to db and continue
     time = rows[0][0].value
+    time = (datetime.strptime(time, '%Y-%m-%d %I:%M %p')).isoformat()
     event_info = [event_name, time]
     cur.execute('SELECT * FROM events WHERE name=? AND time=?',
                 event_info)
@@ -62,9 +63,12 @@ def parse_xlsx(file_, event_name):
 
         # Move on to recording this attendance instance
         checkin_time = row[9].value
-        checkin = datetime.strptime(checkin_time, '%Y-%m-%d %H:%M')
-        checkin_time = checkin.isoformat()
-        checkin_time = 'Manual' if (checkin_time == '') else checkin_time
+        if checkin_time == '':
+            checkin_time = 'Manual'
+        else:
+            checkin = datetime.strptime(checkin_time, '%Y-%m-%d %I:%M %p')
+            checkin_time = checkin.isoformat()
+
         cur.execute('INSERT INTO records VALUES (?,?,?,?)',
                     event_info + [email, checkin_time])
 
