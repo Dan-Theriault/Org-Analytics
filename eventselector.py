@@ -1,47 +1,36 @@
-"""Methods for generating event-selecting queries.
-
-results are fed to methods in analyses.py by the program orchestrator
-"""
+"""Build a query for selecting events. Result should be fed into analyses.py methods."""
 from datetime import datetime
 
 
-def query_from_name(event_name):
-    """Use to select all events sharing a  name."""
-    return ('SELECT * FROM events WHERE name=?', [event_name])
+def build_query(names=[], dates=[], date_range=()):
+    """Dynamically build a query of events table."""
+    query = 'SELECT * FROM events WHERE '
+    for name in names:
+        query += 'name=? OR '
+    if len(names) >= 1:
+        query = query[:-4] + ' AND '
 
+    datestrings = []
+    for date in dates:
+        if not isinstance(date, datetime):
+            raise TypeError('date must be of type datetime.date')
+        query += 'date(time) = date(?) OR '
+        datestrings.append(date.isoformat())
+    if len(dates) >= 1:
+        query = query[:-4] + ' AND '
 
-def query_from_date(event_date):
-    """Use to select all events on a single date."""
-    if isinstance(event_date, datetime.date):
-        raise TypeError('event_date must be of type datetime.date')
-    return ('SELECT * FROM events WHERE date(time) = date(?)', [event_date.isoformat()])
+    if date_range == ():
+        query = query[:-5]
+    elif len(date_range) != 2:
+        raise ValueError('date_range must be a 2-tuple')
+    else:
+        rangestrings = []
+        if not isinstance(date_range[0], datetime):
+            raise TypeError('start date must be of type datetime.date')
+        if not isinstance(date_range[1], datetime):
+            raise TypeError('end date must be of type datetime.date')
+        query += 'date(time) BETWEEN ? and ?'
+        rangestrings.append(date_range[0].isoformat())
+        rangestrings.append(date_range[1].isoformat())
 
-
-def query_from_full_key(event_name, event_date):
-    """Use to select a single event."""
-    if not isinstance(event_date, datetime.date):
-        raise TypeError('event_date must be of type datetime.date')
-    return ('SELECT * FROM events WHERE name=? AND date(time) = date(?)',
-            [event_name, event_date.isoformat()])
-
-
-def query_from_date_range(start_date, end_date):
-    """Use to select all events in a date range."""
-    if not isinstance(start_date, datetime.date):
-        raise TypeError('start_date must be of type datetime.date')
-    if not isinstance(end_date, datetime.date):
-        raise TypeError('end_date must be of type datetime.date')
-
-    return ('SELECT * FROM events WHERE date(time) BETWEEN ? AND ?',
-            [start_date.isoformat(), end_date.isoformat()])
-
-
-def query_from_name_and_date_range(name, start_date, end_date):
-    """Use to select all events sharing a name in a date range."""
-    if not isinstance(start_date, datetime.date):
-        raise TypeError('start_date must be of type datetime.date')
-    if not isinstance(end_date, datetime.date):
-        raise TypeError('end_date must be of type datetime.date')
-
-    return ('SELECT * FROM events WHERE name=? AND date(time) BETWEEN ? AND ?',
-            [name, start_date.isoformat(), end_date.isoformat()])
+    return (query, names + datestrings + list(date_range))
