@@ -20,8 +20,8 @@ def get_arrival_deltas(events_list):
         checkins = [t[0] for t in cur.fetchall() if t[0] != 'Manual']
 
         for checkin in checkins:
-            arrival_datetime = datetime.strptime(checkin, '%Y-%m-%d  %H:%M')
-            event_datetime = datetime.strptime(event[1], '%Y-%m-%d  %H:%M')
+            arrival_datetime = datetime.strptime(checkin, '%Y-%m-%dT%H:%M:%S')
+            event_datetime = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
             arrival_delta = arrival_datetime - event_datetime
             arrival_times.append(arrival_delta.total_seconds() / 60)
 
