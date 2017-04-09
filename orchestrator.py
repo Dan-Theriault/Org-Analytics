@@ -6,7 +6,9 @@ import loader
 import analyses
 import eventselector
 import plotter
+
 import sqlite3
+from datetime import datetime
 
 
 def standard_report(names=[], dates=[], daterange=(), include_emails=False, keep_tex=False):
@@ -23,6 +25,7 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, keep
     tex_vars = {}
 
     arrival_times = analyses.get_arrival_deltas(events_list)
+    plotter.arrival_chart(arrival_times, 'arrival_times.png')
 
     distinct_attend = analyses.count_attendees(events_list, distinct_only=True)
 
@@ -35,12 +38,17 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, keep
     if include_emails:
         email_list = analyses.list_emails(events_list)
 
-    events_attendance = []
+    events_attendance = {}
     for event in events_list:
-        events_attendance.append((*event, analyses.count_attendees([event])))
+        event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
+        event_str = event[0] + ' ' + event_time.date().isoformat()
+        events_attendance[event_str] = analyses.count_attendees([event])
+    if len(events_attendance) == 1:
+        plotter.pie_chart(events_attendance, 'attendance.png')
+    else:
+        plotter.bar_chart(events_attendance, 'attendance.png')
 
     conn.close()
-    pass
 
 
 def comparison_report(events_data_a, events_data_b, include_emails=False, keep_tex=False):
@@ -76,15 +84,20 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, keep_t
         email_list_a = analyses.list_emails(events_list_a)
         email_list_b = analyses.list_emails(events_list_b)
 
-    events_attendance_a = []
+    attends_only_a, attends_only_b = *(analyses.compare_attendees(events_list_a, events_list_b))
+
+    events_attendance_a = {}
     for event in events_list_a:
-        events_attendance_a.append((*event, analyses.count_attendees([event])))
-    events_attendance_b = []
+        event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
+        event_str = event[0] + ' ' + event_time.date().isoformat()
+        events_attendance_a[event_str] = analyses.count_attendees([event])
+    events_attendance_b = {}
     for event in events_list_b:
-        events_attendance_b.append((*event, analyses.count_attendees([event])))
+        event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
+        event_str = event[0] + ' ' + event_time.date().isoformat()
+        events_attendance_b[event_str] = analyses.count_attendees([event])
 
     conn.close()
-    pass
 
 
 def calendar_report(names, daterange, compare_range=(), include_emails=False, keep_tex=False):
@@ -112,9 +125,10 @@ def calendar_report(names, daterange, compare_range=(), include_emails=False, ke
     if include_emails:
         email_list = analyses.list_emails(events_list)
 
-    events_attendance = []
+    events_attendance = {}
     for event in events_list:
-        events_attendance.append((*event, analyses.count_attendees([event])))
+        event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
+        event_str = event[0] + ' ' + event_time.date().isoformat()
+        events_attendance[event_str] = analyses.count_attendees([event])
 
     conn.close()
-    pass
