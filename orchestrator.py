@@ -52,12 +52,12 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, keep_t
     conn = sqlite3.connect(loader.DB)
     cur = conn.cursor()
 
-    events_query, query_vars = eventselector.build_query(*events_data_a)
-    cur.execute(events_query, query_vars)
+    events_query = eventselector.build_query(*events_data_a)
+    cur.execute(*events_query)
     events_list_a = cur.fetchall()
 
-    events_query, query_vars = eventselector.build_query(*events_data_b)
-    cur.execute(events_query, query_vars)
+    events_query = eventselector.build_query(*events_data_b)
+    cur.execute(*events_query)
     events_list_b = cur.fetchall()
 
     distinct_attendees_a = analyses.count_attendees(events_list_a, distinct_only=True)
