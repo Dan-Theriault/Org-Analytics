@@ -86,16 +86,16 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, keep_t
 
     attends_only_a, attends_only_b = *(analyses.compare_attendees(events_list_a, events_list_b))
 
-    events_attendance_a = {}
+    events_attendance = {}
     for event in events_list_a:
         event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
         event_str = event[0] + ' ' + event_time.date().isoformat()
-        events_attendance_a[event_str] = analyses.count_attendees([event])
-    events_attendance_b = {}
+        events_attendance[event_str] = analyses.count_attendees([event])
     for event in events_list_b:
         event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
         event_str = event[0] + ' ' + event_time.date().isoformat()
-        events_attendance_b[event_str] = analyses.count_attendees([event])
+        events_attendance[event_str] = analyses.count_attendees([event])
+    plotter.bar_chart(events_attendance, 'attendance.png')
 
     conn.close()
 
