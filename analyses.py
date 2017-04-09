@@ -139,7 +139,7 @@ def compare_attendees(events_list_a, events_list_b):
         cur.execute('SELECT student_email FROM records ' +
                     'WHERE event_name=? AND event_time=?',
                     list(event))
-        events_list_a += cur.fetchall()
+        attendees_a += cur.fetchall()
     attendees_a = list(set(attendees_a))
 
     attendees_b = []
@@ -147,7 +147,7 @@ def compare_attendees(events_list_a, events_list_b):
         cur.execute('SELECT student_email FROM records ' +
                     'WHERE event_name=? AND event_time=?',
                     list(event))
-        events_list_b += cur.fetchall()
+        attendees_b += cur.fetchall()
     attendees_b = list(set(attendees_b))
 
     a_not_b = [attendee for attendee in attendees_a if attendee not in attendees_b]
