@@ -150,8 +150,10 @@ def compare_attendees(events_list_a, events_list_b):
         attendees_b += cur.fetchall()
     attendees_b = list(set(attendees_b))
 
+    a_or_b = attendees_a + attendees_b
+    a_and_b = [attendee for attendee in attendees_a if attendee in attendees_b]
     a_not_b = [attendee for attendee in attendees_a if attendee not in attendees_b]
     b_not_a = [attendee for attendee in attendees_b if attendee not in attendees_a]
 
     conn.close()
-    return (a_not_b, b_not_a)
+    return (a_and_b, a_or_b, a_not_b, b_not_a)
