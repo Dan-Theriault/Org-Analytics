@@ -9,6 +9,6 @@ def write_tex_vars(tex_vars):
     var_file = open('.working/vars.tex', 'w')
 
     for key in tex_vars:
-        var_file.write("\\newcommand{\%s}{%s}\n" % (key, tex_vars[key]))
+        var_file.write("\\newcommand{\%s}{%s} \n" % (key, tex_vars[key]))
 
     var_file.close()
