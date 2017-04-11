@@ -6,6 +6,7 @@ import loader
 import analyses
 import eventselector
 import plotter
+import texvar
 
 import sqlite3
 from datetime import datetime
@@ -55,7 +56,7 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False):
     tex_vars['event_volunteers'] = event_attend['Volunteers']
     tex_vars['event_members'] = event_attend['Members']
     tex_vars['event_nonmembers'] = event_attend['Nonmembers']
- 
+
     if include_emails:
         tex_vars['include_emails'] = ''
 
@@ -82,6 +83,7 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False):
     plotter.bar_chart(events_attendance, 'attendance.png')
     tex_vars['attendance_chart'] = './.working/attendance.png'
 
+    texvar.write_tex_vars(tex_vars)
     conn.close()
 
 
@@ -198,7 +200,7 @@ def comparison_report(events_data_a, events_data_b, include_emails=False):
         tex_vars['email_volunteers_only_b'] = ''
         tex_vars['email_members_only_b'] = ''
         tex_vars['email_nonmembers_only_b'] = ''
-        
+
         for email in attends_both['Board']:
             tex_vars['email_board_both'] += email + '\n'
         for email in attends_both['Volunteers']:
@@ -236,5 +238,8 @@ def comparison_report(events_data_a, events_data_b, include_emails=False):
         events_attendance_b[event_str] = analyses.count_attendees([event])
     plotter.bar_chart(events_attendance_a, 'attendance_a.png')
     plotter.bar_chart(events_attendance_b, 'attendance_b.png')
+    tex_vars['attendance_chart'] = './.working/attendance_a.png'
+    tex_vars['attendance_chart'] = './.working/attendance_b.png'
 
+    texvar.write_tex_vars(tex_vars)
     conn.close()
