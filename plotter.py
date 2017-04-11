@@ -1,5 +1,6 @@
 """Used by orchestrator to draw graphs."""
 import pandas as pd
+import matplotlib.pyplot as plt
 from os import path
 
 WORK_DIR = '.working'
@@ -13,8 +14,9 @@ def arrival_chart(dataset, filename):
     df = df.rename(columns={0: 'Attendees'})
 
     filename = path.join('.working', filename)
-    plot = df.plot()
-    plot.get_figure().savefig(filename)
+    fig = df.plot().get_figure()
+    fig.savefig(filename)
+    plt.close(fig)
 
 
 def bar_chart(dataset, filename):
@@ -24,8 +26,9 @@ def bar_chart(dataset, filename):
     df = df.transpose()
 
     filename = path.join('.working', filename)
-    plot = df.plot.bar(stacked=True)
-    plot.get_figure().savefig(filename)
+    fig = df.plot.bar(stacked=True).get_figure()
+    fig.savefig(filename)
+    plt.close(fig)
 
 
 def pie_chart(dataset, filename):
@@ -34,5 +37,6 @@ def pie_chart(dataset, filename):
     df = df.drop('All', 0)
 
     filename = path.join('.working', filename)
-    plot = df.plot.pie(subplots=True)[0]
-    plot.get_figure().savefig(filename)
+    fig = df.plot.pie(subplots=True)[0].get_figure()
+    fig.savefig(filename)
+    plt.close(fig)
