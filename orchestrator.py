@@ -163,8 +163,10 @@ def comparison_report(events_data_a, events_data_b, include_emails=False):
     tex_vars['event_b_nonmembers'] = event_attend_b['Nonmembers']
 
     # Compare the overlap / lack thereof of the attendee groups
-    attends_both, attends_either, attends_only_a, attends_only_b = \
-        (analyses.compare_attendees(events_list_a, events_list_b))
+    comparison = analyses.compare_attendees(events_list_a, events_list_b)
+    attends_both = comparison['a_and_b']
+    attends_only_a = comparison['a_not_b']
+    attends_only_b = comparison['b_not_a']
 
     tex_vars['all_both'] = len(attends_both['All'])
     tex_vars['board_both'] = len(attends_both['Board'])

@@ -99,31 +99,27 @@ def list_emails(events_list):
                    'Members': [],
                    'Volunteers': [],
                    'Board': []}
-    attendees = []
 
     for event in events_list:
         cur.execute('SELECT student_email FROM records ' +
                     'WHERE event_name=? AND event_time=?',
                     list(event))
-        attendees += cur.fetchall()
+        email_lists['All'] += cur.fetchall()
 
-    attendees = list(set(attendees))  # ensure all elements of attendees are distinct
+    email_lists['All'] = list(set(email_lists['All']))  # ensure all elements of attendees are distinct
 
-    for attendee in attendees:
-        cur.execute('SELECT is_member,is_volunteer,is_board FROM students WHERE email=?',
-                    attendee)
+    for attendee in email_lists['All'][0]:
+        cur.execute('SELECT is_member,is_volunteer,is_board FROM students WHERE email=?', [attendee])
         attendee_group = cur.fetchone()
 
-        email_lists['All'].append(attendee[0])
-
         if attendee_group[2]:
-            email_lists['Board'].append(attendee[0])
+            email_lists['Board'].append(attendee)
         elif attendee_group[1]:
-            email_lists['Volunteers'].append(attendee[0])
+            email_lists['Volunteers'].append(attendee)
         elif attendee_group[0]:
-            email_lists['Members'].append(attendee[0])
+            email_lists['Members'].append(attendee)
         else:
-            email_lists['Nonmembers'].append(attendee[0])
+            email_lists['Nonmembers'].append(attendee)
 
     conn.close()
     return email_lists
@@ -134,26 +130,83 @@ def compare_attendees(events_list_a, events_list_b):
     conn = sqlite3.connect(loader.DB)
     cur = conn.cursor()
 
-    attendees_a = []
+    attendees_a = {'All': [],
+                   'Nonmembers': [],
+                   'Members': [],
+                   'Volunteers': [],
+                   'Board': []}
+
     for event in events_list_a:
         cur.execute('SELECT student_email FROM records ' +
                     'WHERE event_name=? AND event_time=?',
                     list(event))
-        attendees_a += cur.fetchall()
-    attendees_a = list(set(attendees_a))
+        attendees_a['All'] += cur.fetchall()
 
-    attendees_b = []
+    attendees_a['All'] = list(set(attendees_a['All']))
+    for attendee in attendees_a['All'][0]:
+        cur.execute('SELECT is_member,is_volunteer,is_board FROM students WHERE email=?', [attendee])
+        attendee_group = cur.fetchone()
+
+        if attendee_group[2]:
+            attendees_a['Board'].append(attendee)
+        elif attendee_group[1]:
+            attendees_a['Volunteers'].append(attendee)
+        elif attendee_group[0]:
+            attendees_a['Members'].append(attendee)
+        else:
+            attendees_a['Nonmembers'].append(attendee)
+
+    attendees_b = {'All': [],
+                   'Nonmembers': [],
+                   'Members': [],
+                   'Volunteers': [],
+                   'Board': []}
+
     for event in events_list_b:
         cur.execute('SELECT student_email FROM records ' +
                     'WHERE event_name=? AND event_time=?',
                     list(event))
-        attendees_b += cur.fetchall()
-    attendees_b = list(set(attendees_b))
+        attendees_b['All'] += cur.fetchall()
 
-    a_or_b = attendees_a + attendees_b
-    a_and_b = [attendee for attendee in attendees_a if attendee in attendees_b]
-    a_not_b = [attendee for attendee in attendees_a if attendee not in attendees_b]
-    b_not_a = [attendee for attendee in attendees_b if attendee not in attendees_a]
+    attendees_b['All'] = list(set(attendees_b['All']))
+    for attendee in attendees_b['All'][0]:
+        cur.execute('SELECT is_member,is_volunteer,is_board FROM students WHERE email=?', [attendee])
+        attendee_group = cur.fetchone()
+
+        if attendee_group[2]:
+            attendees_b['Board'].append(attendee)
+        elif attendee_group[1]:
+            attendees_b['Volunteers'].append(attendee)
+        elif attendee_group[0]:
+            attendees_b['Members'].append(attendee)
+        else:
+            attendees_b['Nonmembers'].append(attendee)
+
+    # Generate the comparisons
+    comparison = {}
+    comparison['a_or_b'] = {'All': attendees_a['All'] + attendees_b['All'],
+                            'Nonmembers': attendees_a['Nonmembers'] + attendees_b['Nonmembers'],
+                            'Members': attendees_a['Members'] + attendees_b['Members'],
+                            'Volunteers': attendees_a['Volunteers'] + attendees_b['Volunteers'],
+                            'Board': attendees_a['Board'] + attendees_b['Board']}
+
+    comparison['a_and_b'] = {'All': [e for e in attendees_a['All'] if e in attendees_b['All']],
+                             'Nonmembers': [e for e in attendees_a['Nonmembers'] if e in attendees_b['Nonmembers']],
+                             'Members': [e for e in attendees_a['Members'] if e in attendees_b['Members']],
+                             'Volunteers': [e for e in attendees_a['Volunteers'] if e in attendees_b['Volunteers']],
+                             'Board': [e for e in attendees_a['Board'] if e in attendees_b['Board']]}
+
+    comparison['a_not_b'] = {'All': [e for e in attendees_a['All'] if e not in attendees_b['All']],
+                             'Nonmembers': [e for e in attendees_a['Nonmembers'] if e not in attendees_b['Nonmembers']],
+                             'Members': [e for e in attendees_a['Members'] if e not in attendees_b['Members']],
+                             'Volunteers': [e for e in attendees_a['Volunteers'] if e not in attendees_b['Volunteers']],
+                             'Board': [e for e in attendees_a['Board'] if e not in attendees_b['Board']]}
+
+    comparison['b_not_a'] = {'All': [e for e in attendees_b['All'] if e not in attendees_a['All']],
+                             'Nonmembers': [e for e in attendees_b['Nonmembers'] if e not in attendees_a['Nonmembers']],
+                             'Members': [e for e in attendees_b['Members'] if e not in attendees_a['Members']],
+                             'Volunteers': [e for e in attendees_b['Volunteers'] if e not in attendees_a['Volunteers']],
+                             'Board': [e for e in attendees_b['Board'] if e not in attendees_a['Board']]}
 
     conn.close()
-    return (a_and_b, a_or_b, a_not_b, b_not_a)
+    return comparison
