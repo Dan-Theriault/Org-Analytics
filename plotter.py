@@ -26,7 +26,7 @@ def bar_chart(dataset, filename):
     df = df.transpose()
 
     filename = path.join('.working', filename)
-    fig = df.plot.bar(stacked=True).get_figure()
+    fig = df.plot.barh(stacked=True).get_figure()
     fig.savefig(filename)
     plt.close(fig)
 
