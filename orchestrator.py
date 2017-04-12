@@ -9,6 +9,7 @@ import plotter
 import texvar
 
 import sqlite3
+import subprocess
 from datetime import datetime
 
 
@@ -82,6 +83,7 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False):
     tex_vars['attendancechart'] = './.working/attendance.png'
 
     texvar.write_tex_vars(tex_vars)
+    subprocess.check_output('pdflatex -output-directory Reports Templates/standard.tex', shell=True)
     conn.close()
 
 
@@ -240,4 +242,5 @@ def comparison_report(events_data_a, events_data_b, include_emails=False):
     tex_vars['attendancechartb'] = './.working/attendance_b.png'
 
     texvar.write_tex_vars(tex_vars)
+    subprocess.check_output('pdflatex -output-directory Reports Templates/comparison.tex', shell=True)
     conn.close()
