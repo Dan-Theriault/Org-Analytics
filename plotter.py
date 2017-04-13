@@ -14,17 +14,25 @@ def arrival_chart(dataset, filename):
     df = df.rename(columns={0: 'Attendees'})
 
     filename = path.join('.working', filename)
-    fig = df.plot().get_figure()
+    fig = df.plot(colormap='Set2', figsize=(7.5, 4)).get_figure()
     fig.savefig(filename)
     plt.close(fig)
 
 
 def bar_chart(dataset, filename):
     """Stacked bar chart of attendance at events in dataset, includes attendee type data."""
-    df = pd.DataFrame(dataset, columns=['Event', 'Board', 'Volunteers', 'Members', 'Nonmembers'])
+    df = pd.DataFrame(
+        dataset, index=[event[0] for event in dataset],
+        columns=['Event', 'Board', 'Volunteers', 'Members', 'Nonmembers']
+    )
 
     filename = path.join('.working', filename)
-    plot = df.plot.barh(stacked=True, title="Event Attendance", colormap='Set2')
+    plot = df.plot.barh(
+        stacked=True,
+        title="Event Attendance",
+        colormap='Set2',
+        figsize=(15, 1 + .8 * len(dataset))
+    )
     fig = plot.get_figure()
     fig.savefig(filename)
     plt.close(fig)

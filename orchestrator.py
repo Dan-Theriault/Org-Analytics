@@ -81,7 +81,7 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, verb
     events_list = sorted(events_list, key=lambda x: x[1])
     for event in events_list:
         event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
-        event_str = event[0] + ' ' + event_time.date().isoformat()
+        event_str = event[0] + '\n' + event_time.date().isoformat()
         events_attendance.append((event_str, analyses.count_attendees([event])))
 
     events_attendance = [
@@ -91,7 +91,8 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, verb
         [e[1]['Members']] +
         [e[1]['Nonmembers']]
         for e in events_attendance
-    ]
+    ][::-1]  # reverse the resulting list
+
     plotter.bar_chart(events_attendance, 'attendance.png')
     tex_vars['attendancechart'] = './.working/attendance.png'
 
