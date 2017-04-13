@@ -2,6 +2,7 @@
 import orchestrator
 
 import argparse
+import subprocess
 from datetime import datetime
 
 
@@ -10,12 +11,30 @@ def main():
     main_parser = argparse.ArgumentParser(
         description='Org Analytics report generator.'
     )
+
+    # SETTINGS arguments
     main_parser.add_argument(
         '--emails', dest='emails', action='store_true',
         help='Enable generation of email lists.'
     )
     main_parser.set_defaults(emails=False)
 
+    main_parser.add_argument(
+        '--zathura', dest='reader', action='store_const', const='zathura --fork ',
+        help='Show report in zathura pdf reader.'
+    )
+    main_parser.add_argument(
+        '--okular', dest='reader', action='store_const', const='okular ',
+        help="Show report in kde's okular pdf reader."
+    )
+
+    main_parser.add_argument(
+        '--verbose', '-v', dest='verbose', action='store_true',
+        help="Show more information during report generation."
+    )
+    main_parser.set_defaults(verbose=False)
+
+    # Event-specifying arguments
     main_parser.add_argument(
         '--names', '-n', metavar='NAMES', nargs='*', default=[],
         help='Names of events to include in report'
@@ -60,12 +79,16 @@ def main():
     # Argument Parsing Logic -- reads parsed args and calls orchestrator's report-generating methods
     cargs = main_parser.parse_args()
     date_range = () if cargs.start is None else (cargs.start, cargs.end)
+
+    # Call to standard report generator-- 1 event group
     if cargs.subparser_name is None:
-        # Call to standard report generator-- 1 event group
         orchestrator.standard_report(cargs.names, cargs.dates, date_range, include_emails=cargs.emails)
+        if cargs.reader is not None:
+            subprocess.run(cargs.reader + 'Reports/standard.pdf', shell=True)
+
+    # call to comparison report generator-- 2 event groups
     elif cargs.subparser_name == 'vs':
         date_range_vs = () if cargs.start_vs is None else (cargs.start_vs, cargs.end_vs)
-        # call to comparison report generator-- 2 event groups
         orchestrator.comparison_report(
             (cargs.names, cargs.dates, date_range),
             (cargs.names_vs, cargs.dates_vs, date_range_vs),

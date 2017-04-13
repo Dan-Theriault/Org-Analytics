@@ -13,7 +13,7 @@ import subprocess
 from datetime import datetime
 
 
-def standard_report(names=[], dates=[], daterange=(), include_emails=False):
+def standard_report(names=[], dates=[], daterange=(), include_emails=False, verbose=False):
     """Generate a standard report on a single group of events.
 
     Takes in a list of names, a list of dates, and a 2-tuple containing a start and end date.
@@ -87,7 +87,7 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False):
     conn.close()
 
 
-def comparison_report(events_data_a, events_data_b, include_emails=False):
+def comparison_report(events_data_a, events_data_b, include_emails=False, verbose=False):
     """Compare two groups of events.
 
     events_data_* variables should be 3-tuples of format (names, dates, daterange).
