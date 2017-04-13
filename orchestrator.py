@@ -77,11 +77,21 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, verb
         for email in email_list['Nonmembers']:
             tex_vars['emailnonmembers'] += email + '\n'
 
-    events_attendance = {}
+    events_attendance = []
+    events_list = sorted(events_list, key=lambda x: x[1])
     for event in events_list:
         event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
         event_str = event[0] + ' ' + event_time.date().isoformat()
-        events_attendance[event_str] = analyses.count_attendees([event])
+        events_attendance.append((event_str, analyses.count_attendees([event])))
+
+    events_attendance = [
+        [e[0]] +
+        [e[1]['Board']] +
+        [e[1]['Volunteers']] +
+        [e[1]['Members']] +
+        [e[1]['Nonmembers']]
+        for e in events_attendance
+    ]
     plotter.bar_chart(events_attendance, 'attendance.png')
     tex_vars['attendancechart'] = './.working/attendance.png'
 
