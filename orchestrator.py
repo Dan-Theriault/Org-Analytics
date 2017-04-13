@@ -11,6 +11,7 @@ import texvar
 import sqlite3
 import subprocess
 from datetime import datetime
+import os
 
 
 def standard_report(names=[], dates=[], daterange=(), include_emails=False, verbose=False):
@@ -86,6 +87,8 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, verb
 
     texvar.write_tex_vars(tex_vars)
     subprocess.check_output('pdflatex -output-directory Reports Templates/standard.tex', shell=True)
+    os.remove('./Reports/standard.aux')
+    os.remove('./Reports/standard.log')
     conn.close()
 
 
