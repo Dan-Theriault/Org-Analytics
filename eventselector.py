@@ -34,3 +34,44 @@ def build_query(names=[], dates=[], date_range=()):
         rangestrings.append(date_range[1].isoformat())
 
     return (query, names + datestrings + list(date_range))
+
+
+def name_group(names=[], dates=[], date_range=()):
+    """Produce a human-readable string describing the event group."""
+    groupname = ""
+
+    # Event names are the first part of the string
+    if names == []:
+        groupname = "Events"
+    else:
+        if len(names) == 1:
+            groupname = "'{}'".format(names[0])
+        elif len(names) == 2:
+            groupname = "'{}' and '{}'".format(names[0], names[1])
+        else:
+            for name in names[:-1]:
+                groupname += "'{}', ".format(name)
+            groupname += "and '{}'".format(names[-1])
+
+    # Dates come next, but there's an interaction with date_range-- only dates in the range are shown
+    # If both date and range arguments are present, only show resulting dates
+    if date_range != ():
+        if len(dates) == 0:
+            groupname += " from {} to {}".format(
+                date_range[0].isoformat()[:10],
+                date_range[1].isoformat()[:10]
+            )
+        else:
+            dates = [date for date in dates if date > date_range[0] and date < date_range[1]]
+
+    if len(dates) == 1:
+        groupname += " on {}".format(dates[0].isoformat()[:10])
+    elif len(dates) == 2:
+        groupname += " on {} and {}".format(dates[0].isoformat()[:10], dates[1].isoformat()[:10])
+    elif len(dates) > 2:
+        groupname += " on "
+        for date in dates[:-1]:
+            groupname += "{}, ".format(date.isoformat()[:10])
+        groupname += "and {}"
+
+    return groupname

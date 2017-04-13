@@ -26,6 +26,8 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, verb
 
     tex_vars = {}
 
+    tex_vars['groupname'] = eventselector.name_group(names, dates, daterange)
+
     arrival_times = analyses.get_arrival_deltas(events_list)
     plotter.arrival_chart(arrival_times, 'arrival_times.png')
     tex_vars['arrivalchart'] = './.working/arrival_times.png'
@@ -105,6 +107,8 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, verbos
     events_list_b = cur.fetchall()
 
     tex_vars = {}
+    tex_vars['groupnamea'] = eventselector.name_group(*events_data_a)
+    tex_vars['groupnameb'] = eventselector.name_group(*events_data_b)
 
     # Create dictionary entries for numbers of distinct attendees
     distinct_attend_a = analyses.count_attendees(events_list_a, distinct_only=True)

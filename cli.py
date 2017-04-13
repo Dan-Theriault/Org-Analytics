@@ -78,7 +78,12 @@ def main():
 
     # Argument Parsing Logic -- reads parsed args and calls orchestrator's report-generating methods
     cargs = main_parser.parse_args()
-    date_range = () if cargs.start is None else (cargs.start, cargs.end)
+    date_range = () if cargs.start is None else (
+        datetime.strptime(cargs.start, "%Y-%m-%d"),
+        datetime.strptime(cargs.end, "%Y-%m-%d")
+    )
+    for date in cargs.dates:
+        date = datetime.strptime(date, "%Y-%m-%d")
 
     # Call to standard report generator-- 1 event group
     if cargs.subparser_name is None:
@@ -88,7 +93,12 @@ def main():
 
     # call to comparison report generator-- 2 event groups
     elif cargs.subparser_name == 'vs':
-        date_range_vs = () if cargs.start_vs is None else (cargs.start_vs, cargs.end_vs)
+        date_range_vs = () if cargs.start_vs is None else (
+            datetime.strptime(cargs.start_vs, "%Y-%m-%d"),
+            datetime.strptime(cargs.end_vs, "%Y-%m-%d")
+        )
+        for date in cargs.dates_vs:
+            date = datetime.strptime(date, "%Y-%m-%d")
         orchestrator.comparison_report(
             (cargs.names, cargs.dates, date_range),
             (cargs.names_vs, cargs.dates_vs, date_range_vs),
