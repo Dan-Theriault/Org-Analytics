@@ -45,13 +45,13 @@ def name_group(names=[], dates=[], date_range=()):
         groupname = "Events"
     else:
         if len(names) == 1:
-            groupname = "'{}'".format(names[0])
+            groupname = "`{}'".format(names[0])
         elif len(names) == 2:
-            groupname = "'{}' and '{}'".format(names[0], names[1])
+            groupname = "`{}' and `{}'".format(names[0], names[1])
         else:
             for name in names[:-1]:
-                groupname += "'{}', ".format(name)
-            groupname += "and '{}'".format(names[-1])
+                groupname += "`{}', ".format(name)
+            groupname += "and `{}'".format(names[-1])
 
     # Dates come next, but there's an interaction with date_range-- only dates in the range are shown
     # If both date and range arguments are present, only show resulting dates
