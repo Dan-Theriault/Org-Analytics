@@ -97,7 +97,10 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, verb
     tex_vars['attendancechart'] = './.working/attendance.png'
 
     texvar.write_tex_vars(tex_vars)
-    subprocess.check_output('pdflatex -output-directory Reports Templates/standard.tex', shell=True)
+    if verbose:
+        subprocess.run('pdflatex -output-directory Reports Templates/standard.tex', shell=True)
+    else:
+        subprocess.check_output('pdflatex -output-directory Reports Templates/standard.tex', shell=True)
     os.remove('./Reports/standard.aux')
     os.remove('./Reports/standard.log')
     conn.close()
