@@ -48,18 +48,18 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, verb
     tex_vars['totalnonmembers'] = total_attend['Nonmembers']
 
     average_attend = analyses.count_attendees(events_list, average_attendance=True)
-    tex_vars['averageall'] = average_attend['All']
-    tex_vars['averageboard'] = average_attend['Board']
-    tex_vars['averagevolunteers'] = average_attend['Volunteers']
-    tex_vars['averagemembers'] = average_attend['Members']
-    tex_vars['averagenonmembers'] = average_attend['Nonmembers']
+    tex_vars['averageall'] = "%.3f" % average_attend['All']
+    tex_vars['averageboard'] = "%.3f" % average_attend['Board']
+    tex_vars['averagevolunteers'] = "%.3f" % average_attend['Volunteers']
+    tex_vars['averagemembers'] = "%.3f" % average_attend['Members']
+    tex_vars['averagenonmembers'] = "%.3f" % average_attend['Nonmembers']
 
     event_attend = analyses.count_attendees(events_list, average_events=True)
-    tex_vars['eventall'] = event_attend['All']
-    tex_vars['eventboard'] = event_attend['Board']
-    tex_vars['eventvolunteers'] = event_attend['Volunteers']
-    tex_vars['eventmembers'] = event_attend['Members']
-    tex_vars['eventnonmembers'] = event_attend['Nonmembers']
+    tex_vars['eventall'] = "%.3f" % event_attend['All']
+    tex_vars['eventboard'] = "%.3f" % event_attend['Board']
+    tex_vars['eventvolunteers'] = "%.3f" % event_attend['Volunteers']
+    tex_vars['eventmembers'] = "%.3f" % event_attend['Members']
+    tex_vars['eventnonmembers'] = "%.3f" % event_attend['Nonmembers']
 
     if include_emails:
         tex_vars['emailboard'] = ''
@@ -154,31 +154,31 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, verbos
 
     # Create dictionary entries for average number of attendees per event
     average_attend_a = analyses.count_attendees(events_list_a, average_attendance=True)
-    tex_vars['averageaall'] = average_attend_a['All']
-    tex_vars['averageaboard'] = average_attend_a['Board']
-    tex_vars['averageavolunteers'] = average_attend_a['Volunteers']
-    tex_vars['averageamembers'] = average_attend_a['Members']
-    tex_vars['averageanonmembers'] = average_attend_a['Nonmembers']
+    tex_vars['averageaall'] = "%.3f" % average_attend_a['All']
+    tex_vars['averageaboard'] = "%.3f" % average_attend_a['Board']
+    tex_vars['averageavolunteers'] = "%.3f" % average_attend_a['Volunteers']
+    tex_vars['averageamembers'] = "%.3f" % average_attend_a['Members']
+    tex_vars['averageanonmembers'] = "%.3f" % average_attend_a['Nonmembers']
     average_attend_b = analyses.count_attendees(events_list_b, average_attendance=True)
-    tex_vars['averageball'] = average_attend_b['All']
-    tex_vars['averagebboard'] = average_attend_b['Board']
-    tex_vars['averagebvolunteers'] = average_attend_b['Volunteers']
-    tex_vars['averagebmembers'] = average_attend_b['Members']
-    tex_vars['averagebnonmembers'] = average_attend_b['Nonmembers']
+    tex_vars['averageball'] = "%.3f" % average_attend_b['All']
+    tex_vars['averagebboard'] = "%.3f" % average_attend_b['Board']
+    tex_vars['averagebvolunteers'] = "%.3f" % average_attend_b['Volunteers']
+    tex_vars['averagebmembers'] = "%.3f" % average_attend_b['Members']
+    tex_vars['averagebnonmembers'] = "%.3f" % average_attend_b['Nonmembers']
 
     # Create dictionary entries for the average number of events an attendee has attended
     event_attend_a = analyses.count_attendees(events_list_a, average_events=True)
-    tex_vars['eventaall'] = event_attend_a['All']
-    tex_vars['eventaboard'] = event_attend_a['Board']
-    tex_vars['eventavolunteers'] = event_attend_a['Volunteers']
-    tex_vars['eventamembers'] = event_attend_a['Members']
-    tex_vars['eventanonmembers'] = event_attend_a['Nonmembers']
+    tex_vars['eventaall'] = "%.3f" % event_attend_a['All']
+    tex_vars['eventaboard'] = "%.3f" % event_attend_a['Board']
+    tex_vars['eventavolunteers'] = "%.3f" % event_attend_a['Volunteers']
+    tex_vars['eventamembers'] = "%.3f" % event_attend_a['Members']
+    tex_vars['eventanonmembers'] = "%.3f" % event_attend_a['Nonmembers']
     event_attend_b = analyses.count_attendees(events_list_b, average_events=True)
-    tex_vars['eventball'] = event_attend_b['All']
-    tex_vars['eventbboard'] = event_attend_b['Board']
-    tex_vars['eventbvolunteers'] = event_attend_b['Volunteers']
-    tex_vars['eventbmembers'] = event_attend_b['Members']
-    tex_vars['eventbnonmembers'] = event_attend_b['Nonmembers']
+    tex_vars['eventball'] = "%.3f" % event_attend_b['All']
+    tex_vars['eventbboard'] = "%.3f" % event_attend_b['Board']
+    tex_vars['eventbvolunteers'] = "%.3f" % event_attend_b['Volunteers']
+    tex_vars['eventbmembers'] = "%.3f" % event_attend_b['Members']
+    tex_vars['eventbnonmembers'] = "%.3f" % event_attend_b['Nonmembers']
 
     # Compare the overlap / lack thereof of the attendee groups
     comparison = analyses.compare_attendees(events_list_a, events_list_b)
