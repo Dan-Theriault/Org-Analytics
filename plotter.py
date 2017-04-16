@@ -9,12 +9,16 @@ WORK_DIR = '.working'
 def arrival_chart(dataset, filename):
     """Line plot of the arrival times."""
     df = pd.DataFrame(dataset)
-    df = df.rename(columns={0: 'Relative Arrival Times'})
-    df = pd.DataFrame(df.groupby('Relative Arrival Times').size())
+    df = df.rename(columns={0: '(Arrival Time - Start Time)'})
+    df = pd.DataFrame(df.groupby('(Arrival Time - Start Time)').size())
     df = df.rename(columns={0: 'Attendees'})
 
     filename = path.join('.working', filename)
-    fig = df.plot(colormap='Set2', figsize=(7.5, 4)).get_figure()
+    fig = df.plot(
+        colormap='Set2',
+        figsize=(7.5, 4),
+        title="Relative Arrival Times"
+    ).get_figure()
     fig.savefig(filename)
     plt.close(fig)
 
