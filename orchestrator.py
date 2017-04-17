@@ -93,7 +93,8 @@ def standard_report(names=[], dates=[], daterange=(), include_emails=False, verb
         for e in events_attendance
     ][::-1]  # reverse the resulting list
 
-    plotter.bar_chart(events_attendance, 'attendance.png')
+    plotter.bar_chart(events_attendance, 'attendance.png',
+                      title='Event Attendance at ' + tex_vars['groupname'])
     tex_vars['attendancechart'] = './.working/attendance.png'
 
     texvar.write_tex_vars(tex_vars)
@@ -129,7 +130,7 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, verbos
 
     # Create dictionary entries for numbers of distinct attendees
     distinct_attend_a = analyses.count_attendees(events_list_a, distinct_only=True)
-    tex_vars['distinctall'] = distinct_attend_a['All']
+    tex_vars['distinctaall'] = distinct_attend_a['All']
     tex_vars['distinctaboard'] = distinct_attend_a['Board']
     tex_vars['distinctavolunteers'] = distinct_attend_a['Volunteers']
     tex_vars['distinctamembers'] = distinct_attend_a['Members']
@@ -219,19 +220,19 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, verbos
     nonmembers_venn += [len(attends_both['Nonmembers'])]
     # nonmembers_venn = set(nonmembers_venn)
 
-    plotter.venn_diagram(all_venn, 'allvenn.png')
+    plotter.venn_diagram(all_venn, 'allvenn.png', title='All')
     tex_vars['allvenn'] = './.working/allvenn.png'
 
-    plotter.venn_diagram(board_venn, 'boardvenn.png')
+    plotter.venn_diagram(board_venn, 'boardvenn.png', title='Board Members')
     tex_vars['boardvenn'] = './.working/boardvenn.png'
 
-    plotter.venn_diagram(volunteers_venn, 'volunteersvenn.png')
+    plotter.venn_diagram(volunteers_venn, 'volunteersvenn.png', title='Volunteers')
     tex_vars['volunteersvenn'] = './.working/volunteersvenn.png'
 
-    plotter.venn_diagram(members_venn, 'membersvenn.png')
+    plotter.venn_diagram(members_venn, 'membersvenn.png', title='Members')
     tex_vars['membersvenn'] = './.working/membersvenn.png'
 
-    plotter.venn_diagram(nonmembers_venn, 'nonmembersvenn.png')
+    plotter.venn_diagram(nonmembers_venn, 'nonmembersvenn.png', title='Nonmembers')
     tex_vars['nonmembersvenn'] = './.working/nonmembersvenn.png'
 
     # optionally, generate email lists
@@ -274,21 +275,54 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, verbos
         for email in attends_only_b['Nonmembers']:
             tex_vars['emailnonmembersonlyb'] += email + '\n'
 
-    events_attendance_a = {}
-    events_attendance_b = {}
+    events_attendance_a = []
+    events_list_a = sorted(events_list_a, key=lambda x: x[1])
     for event in events_list_a:
         event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
-        event_str = event[0] + ' ' + event_time.date().isoformat()
-        events_attendance_a[event_str] = analyses.count_attendees([event])
+        event_str = event[0] + '\n' + event_time.date().isoformat()
+        events_attendance_a.append((event_str, analyses.count_attendees([event])))
+
+    events_attendance_a = [
+        [e[0]] +
+        [e[1]['Board']] +
+        [e[1]['Volunteers']] +
+        [e[1]['Members']] +
+        [e[1]['Nonmembers']]
+        for e in events_attendance_a
+    ][::-1]  # reverse the resulting list
+
+    events_attendance_b = []
+    events_list_b = sorted(events_list_b, key=lambda x: x[1])
     for event in events_list_b:
         event_time = datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S')
-        event_str = event[0] + ' ' + event_time.date().isoformat()
-        events_attendance_b[event_str] = analyses.count_attendees([event])
-    plotter.bar_chart(events_attendance_a, 'attendance_a.png')
-    plotter.bar_chart(events_attendance_b, 'attendance_b.png')
+        event_str = event[0] + '\n' + event_time.date().isoformat()
+        events_attendance_b.append((event_str, analyses.count_attendees([event])))
+
+    events_attendance_b = [
+        [e[0]] +
+        [e[1]['Board']] +
+        [e[1]['Volunteers']] +
+        [e[1]['Members']] +
+        [e[1]['Nonmembers']]
+        for e in events_attendance_b
+    ][::-1]  # reverse the resulting list
+
+    plotter.bar_chart(
+        events_attendance_a, 'attendance_a.png',
+        title='(A): Event Attendance at ' + tex_vars['groupnamea']
+    )
+    plotter.bar_chart(
+        events_attendance_b, 'attendance_b.png',
+        title='(B): Event Attendance at ' + tex_vars['groupnameb']
+    )
     tex_vars['attendancecharta'] = './.working/attendance_a.png'
     tex_vars['attendancechartb'] = './.working/attendance_b.png'
 
     texvar.write_tex_vars(tex_vars)
-    # subprocess.check_output('pdflatex -output-directory Reports Templates/comparison.tex', shell=True)
+    if verbose:
+        subprocess.run('pdflatex -output-directory Reports Templates/comparison.tex', shell=True)
+    else:
+        subprocess.check_output('pdflatex -output-directory Reports Templates/comparison.tex', shell=True)
+    os.remove('./Reports/comparison.aux')
+    os.remove('./Reports/comparison.log')
     conn.close()

@@ -64,6 +64,7 @@ def venn_diagram(dataset, filename, title=''):
     dataset should be of form (Ab, aB, AB).
     """
     venn2(dataset)
+    plt.title(title)
 
     filename = path.join('.working', filename)
     plt.savefig(filename)

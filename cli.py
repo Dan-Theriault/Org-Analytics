@@ -104,6 +104,8 @@ def main():
             (cargs.names_vs, cargs.dates_vs, date_range_vs),
             include_emails=cargs.emails
         )
+        if cargs.reader is not None:
+            subprocess.run(cargs.reader + 'Reports/comparison.pdf', shell=True)
 
 if __name__ == '__main__':
     main()
