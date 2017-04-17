@@ -143,7 +143,8 @@ def compare_attendees(events_list_a, events_list_b):
         attendees_a['All'] += cur.fetchall()
 
     attendees_a['All'] = list(set(attendees_a['All']))
-    for attendee in attendees_a['All'][0]:
+    attendees_a['All'] = [attendee[0] for attendee in attendees_a['All']]
+    for attendee in attendees_a['All']:
         cur.execute('SELECT is_member,is_volunteer,is_board FROM students WHERE email=?', [attendee])
         attendee_group = cur.fetchone()
 
@@ -169,7 +170,8 @@ def compare_attendees(events_list_a, events_list_b):
         attendees_b['All'] += cur.fetchall()
 
     attendees_b['All'] = list(set(attendees_b['All']))
-    for attendee in attendees_b['All'][0]:
+    attendees_b['All'] = [attendee[0] for attendee in attendees_b['All']]
+    for attendee in attendees_b['All']:
         cur.execute('SELECT is_member,is_volunteer,is_board FROM students WHERE email=?', [attendee])
         attendee_group = cur.fetchone()
 

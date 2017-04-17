@@ -189,23 +189,50 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, verbos
     attends_only_a = comparison['a_not_b']
     attends_only_b = comparison['b_not_a']
 
-    tex_vars['allboth'] = len(attends_both['All'])
-    tex_vars['boardboth'] = len(attends_both['Board'])
-    tex_vars['volunteersboth'] = len(attends_both['Volunteers'])
-    tex_vars['membersboth'] = len(attends_both['Members'])
-    tex_vars['nonmembersboth'] = len(attends_both['Nonmembers'])
+    all_venn = []
+    all_venn += [len(attends_only_a['All'])]
+    all_venn += [len(attends_only_b['All'])]
+    all_venn += [len(attends_both['All'])]
+    # all_venn = set(all_venn)
 
-    tex_vars['allonlya'] = len(attends_only_a['All'])
-    tex_vars['boardonlya'] = len(attends_only_a['Board'])
-    tex_vars['volunteersonlya'] = len(attends_only_a['Volunteers'])
-    tex_vars['membersonlya'] = len(attends_only_a['Members'])
-    tex_vars['nonmembersonlya'] = len(attends_only_a['Nonmembers'])
+    board_venn = []
+    board_venn += [len(attends_only_a['Board'])]
+    board_venn += [len(attends_only_b['Board'])]
+    board_venn += [len(attends_both['Board'])]
+    # board_venn = set(board_venn)
 
-    tex_vars['allonlyb'] = len(attends_only_b['All'])
-    tex_vars['boardonlyb'] = len(attends_only_b['Board'])
-    tex_vars['volunteersonlyb'] = len(attends_only_b['Volunteers'])
-    tex_vars['membersonlyb'] = len(attends_only_b['Members'])
-    tex_vars['nonmembersonlyb'] = len(attends_only_b['Nonmembers'])
+    volunteers_venn = []
+    volunteers_venn += [len(attends_only_a['Volunteers'])]
+    volunteers_venn += [len(attends_only_b['Volunteers'])]
+    volunteers_venn += [len(attends_both['Volunteers'])]
+    # volunteers_venn = set(volunteers_venn)
+
+    members_venn = []
+    members_venn += [len(attends_only_a['Members'])]
+    members_venn += [len(attends_only_b['Members'])]
+    members_venn += [len(attends_both['Members'])]
+    # members_venn = set(members_venn)
+
+    nonmembers_venn = []
+    nonmembers_venn += [len(attends_only_a['Nonmembers'])]
+    nonmembers_venn += [len(attends_only_b['Nonmembers'])]
+    nonmembers_venn += [len(attends_both['Nonmembers'])]
+    # nonmembers_venn = set(nonmembers_venn)
+
+    plotter.venn_diagram(all_venn, 'allvenn.png')
+    tex_vars['allvenn'] = './.working/allvenn.png'
+
+    plotter.venn_diagram(board_venn, 'boardvenn.png')
+    tex_vars['boardvenn'] = './.working/boardvenn.png'
+
+    plotter.venn_diagram(volunteers_venn, 'volunteersvenn.png')
+    tex_vars['volunteersvenn'] = './.working/volunteersvenn.png'
+
+    plotter.venn_diagram(members_venn, 'membersvenn.png')
+    tex_vars['membersvenn'] = './.working/membersvenn.png'
+
+    plotter.venn_diagram(nonmembers_venn, 'nonmembersvenn.png')
+    tex_vars['nonmembersvenn'] = './.working/nonmembersvenn.png'
 
     # optionally, generate email lists
     if include_emails:
@@ -263,5 +290,5 @@ def comparison_report(events_data_a, events_data_b, include_emails=False, verbos
     tex_vars['attendancechartb'] = './.working/attendance_b.png'
 
     texvar.write_tex_vars(tex_vars)
-    subprocess.check_output('pdflatex -output-directory Reports Templates/comparison.tex', shell=True)
+    # subprocess.check_output('pdflatex -output-directory Reports Templates/comparison.tex', shell=True)
     conn.close()
