@@ -72,6 +72,6 @@ def name_group(names=[], dates=[], date_range=()):
         groupname += " on "
         for date in dates[:-1]:
             groupname += "{}, ".format(date.isoformat()[:10])
-        groupname += "and {}"
+        groupname += "and {}".format(dates[-1].isoformat()[:10])
 
     return groupname

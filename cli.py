@@ -82,8 +82,7 @@ def main():
         datetime.strptime(cargs.start, "%Y-%m-%d"),
         datetime.strptime(cargs.end, "%Y-%m-%d")
     )
-    for date in cargs.dates:
-        date = datetime.strptime(date, "%Y-%m-%d")
+    cargs.dates = [datetime.strptime(date, "%Y-%m-%d") for date in cargs.dates]
 
     # Call to standard report generator-- 1 event group
     if cargs.subparser_name is None:
@@ -97,8 +96,7 @@ def main():
             datetime.strptime(cargs.start_vs, "%Y-%m-%d"),
             datetime.strptime(cargs.end_vs, "%Y-%m-%d")
         )
-        for date in cargs.dates_vs:
-            date = datetime.strptime(date, "%Y-%m-%d")
+        cargs.dates_vs = [datetime.strptime(date, "%Y-%m-%d") for date in cargs.dates_vs]
         orchestrator.comparison_report(
             (cargs.names, cargs.dates, date_range),
             (cargs.names_vs, cargs.dates_vs, date_range_vs),

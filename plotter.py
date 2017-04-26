@@ -39,7 +39,7 @@ def bar_chart(dataset, filename, title="Event Attendance"):
         stacked=True,
         title=title,
         colormap='Set2',
-        figsize=(16.1, 1 + .55 * len(dataset))
+        figsize=(16.1, 2 + .45 * len(dataset))
     )
 
     fig = plot.get_figure()
